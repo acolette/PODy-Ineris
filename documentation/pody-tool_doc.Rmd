@@ -1,0 +1,81 @@
+---
+title: "PODySPEC"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+## Overview
+
+These scripts are designed to evaluate the impact of ozone on agriculture by computing PODySPEC (_Phytotoxic Ozone Dose_). The methodology is described in the [manual](https://icpvegetation.ceh.ac.uk/chapter-3-mapping-critical-levels-vegetation) by the __IPC Vegetation__. 
+
+The scripts provided allow to compute PODy for various species of crops (Bread Wheat, Potato, Tomato), trees (Spruce, Temperate Oak, Beech) and for Grass. They have been used to study ___Long-term evolution of the impacts of ozone air pollution on agricultural yields in Europe___ in the [Eionet report](https://acm.eionet.europa.eu/reports/EIONET_Rep_ETCACM_2018_15_O3impactTrends).
+
+The following section describes the scripts, the input variables needed & the documentation.
+
+## Description
+
+### Tool & documentation
+
+In the folder, we provide some documentations explaining the methodology used in the scripts: the manual and the annexes and the eionet report (application to Europe of the script for wheat). We also provide a small input files (_pody_input_EDT_CHIF_2010_light.nc_) regrouping all the variables needed as well as some parameters for the ozone deposition derived from the chemistry and transport model [CHIMERE](http://www.lmd.polytechnique.fr/chimere/) (_DEPO_PARS_) and species related parameter derived from the mapping manual (_SPECIES_PAR.csv_). These files are regrouped in the folder _data_ & _input_ respectively. Finally two scripts are provided: _phenology.R_ & _pody.R_.
+
+First _phenology.R_ must be launched to preprocess the phenology, then _pody.R_ must be launched to compute PODy for one specie. Both script are based on hourly input variables described in the last section.
+
+### Input variables 
+
+The following table regroups the variables used as input in the code with the dimention and unit of all the variables.
+
+Variables | Names                                    | Dimension | Timestep | Units
+----------|------------------------------------------|-----------|----------|-------------
+alti      | Altitude                                 | 2D        |          | m
+FC        | Water Content at Field Capacity          | 2D        |          | cm^3^.cm^-3^
+PWP       | Water Content at Permanent Wilting Point | 2D        |          | cm^3^.cm^-3^
+lon       | Longitude                                | 2D        |          | [-180,180]
+lat       | Latitude                                 | 2D        |          | [-180,180]
+sreh      | Relative humidity                        | 3D        | hourly   | m^3^.m^-3^
+swvl      | Soil moisture                            | 3D        | hourly   | m^3^.m^-3^
+surf temp | Surface temperature                      | 3D        | hourly   | °C
+swrd      | Short Wave Radiation                     | 3D        | hourly   | W.m^-2^
+ppfd      | Photosynthetic Photon Flux Density       | 3D        | hourly   | µmol.m^-2^.s^-1^
+ustar     | Friction velocity                        | 3D        | hourly   | m.s^-1^
+obuk      | Monin-Obhukov Length                     | 3D        | hourly   | m
+airm      | Air molecule                             | 3D        | hourly   | molec.cm^-3^
+O3        | Ozone                                    | 3D        | hourly   | ppb
+
+### Output variables 
+
+The following table regroups the output variables (lon, lat & PODy) of the light output.
+
+Variables | Names                 | Dimension | Timestep | Units
+----------|-----------------------|-----------|----------|-------------
+lon       | Longitude             | 2D        |          | [-180,180]
+lat       | Latitude              | 2D        |          | [-180,180]
+PODy      | Phytotoxic Ozone Dose | 2D        | yearly   | mmol.m^2^.PLA
+
+If you set the option _heavy output_ to _TRUE_ then a __hourly netcdf file__ of the following variables is written (could be a heavy output depending on your grid). It is usefull to understand how evolve the PODy by looking at the limitation functions, the ozone (downscalled depending on the height of the first model layer)... 
+
+Variables | Names                             | Dimension | Timestep | Units
+----------|-----------------------------------|-----------|----------|-------------
+lon       | Longitude                         | 1D        |          | [-180,180]
+lat       | Latitude                          | 1D        |          | [-180,180]
+PODy      | Phytotoxic Ozone Dose             | 3D        | hourly   | mmol.m^2^.PLA
+O3        | Ozone canopy                      | 3D        | hourly   | ppb
+accper    | Accumulation period               | 3D        | hourly   | [0,1]
+flight    | Phytotoxic Ozone Dose             | 3D        | hourly   | [0,1]
+fO3       | Ozone limitation function         | 3D        | hourly   | [0,1]
+fphen     | Phenology limitation function     | 3D        | hourly   | [0,1]
+fsmi      | Soil moisture limitation function | 3D        | hourly   | [0,1]
+ftemp     | Temperature limitation function   | 3D        | hourly   | [0,1]
+fvpd      | Air humidity limitation function  | 3D        | hourly   | [0,1]
+
+## Future development
+
+Here we list some future developments:
+
+1. Add biogeographical region & spatialize some values 
+2. Add PODyIAM (generic PODy)
+3. Add sumVPD is missing to correct the PODy 
+4. Enhance the code (simplify, OOB programing) & documentation
+6. Find all the parametrization (all values for each types of trees...). Here we have used Temperate Oak Spain Italy for example.
